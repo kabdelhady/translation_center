@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Translation center : " />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Translation center</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/kabdelhady/translation_center">View on GitHub</a>
+
+          <h1 id="project_title">Translation center</h1>
+          <h2 id="project_tagline"></h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/kabdelhady/translation_center/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/kabdelhady/translation_center/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>Translation admin must extend User model and implement a boolean method named can_admin_translations?</p>
+
+<h2>Getting started</h2>
+
+<p>TranslationCenter works with Rails 3.2 onwards. You can add it to your Gemfile with:</p>
+
+<div class="highlight"><pre><span class="n">gem</span> <span class="s1">'translation_center'</span><span class="p">,</span> <span class="ss">:git</span> <span class="o">=&gt;</span> <span class="s1">'git@github.com:mahkhaled/translation_center.git'</span>
+</pre></div>
+
+<p>Run bundle install command.</p>
+
+<p>TranslationCenter depends on Devise, so make sure you installed it successfully <a href="https://github.com/plataformatec/devise#starting-with-rails">https://github.com/plataformatec/devise#starting-with-rails</a></p>
+
+<p>After you install TranslationCenter and add it to your Gemfile, you need to run the generator:</p>
+
+<div class="highlight"><pre><span class="n">rails</span> <span class="n">generate</span> <span class="n">translation_center</span><span class="ss">:install</span> <span class="n">en</span> <span class="n">ar</span> <span class="n">de</span>
+</pre></div>
+
+<p>This will add three languages to the translation center, you need to add them in the config/translation_center.yaml</p>
+
+<div class="highlight"><pre><span class="n">development</span><span class="p">:</span>
+  <span class="n">lang</span><span class="p">:</span>
+    <span class="n">en</span><span class="p">:</span> <span class="s1">'English'</span>
+    <span class="n">ar</span><span class="p">:</span> <span class="s1">'Arabic'</span>
+    <span class="n">de</span><span class="p">:</span> <span class="s1">'German'</span>
+</pre></div>
+
+<p>if you don't supply languages for the generator it will support only English.</p>
+
+<p>And run the migrations</p>
+
+<div class="highlight"><pre><span class="n">rake</span> <span class="n">db</span><span class="ss">:migrate</span>
+</pre></div>
+
+<p>In your User model or any other model that should acts as a translator add the following line:</p>
+
+<div class="highlight"><pre><span class="n">acts_as_translator</span>
+</pre></div>
+
+<p>In routes file add </p>
+
+<div class="highlight"><pre><span class="n">mount</span> <span class="no">TranslationCenter</span><span class="o">::</span><span class="no">Engine</span> <span class="o">=&gt;</span> <span class="s2">"/translation_center"</span>
+</pre></div>
+
+<p>You now need to define who is the translation center admin. Admin can accept translations, manage translation keys and do more things. To define your admin, you need to override User#can_admin_translations? method like the following....</p>
+
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">can_admin_translations?</span>
+  <span class="nb">self</span><span class="o">.</span><span class="n">email</span> <span class="o">==</span> <span class="s1">'admin@tc.com'</span>
+<span class="k">end</span>
+</pre></div>
+
+<h2>How to use</h2>
+
+<p>To migrate translations from TranslationCenter database to yaml files</p>
+
+<div class="highlight"><pre><span class="n">rake</span> <span class="n">translation_center</span><span class="ss">:db2yaml</span>
+</pre></div>
+
+<p>To migrate translations from yaml files to TranslationCenter database </p>
+
+<div class="highlight"><pre><span class="n">rake</span> <span class="n">translation_center</span><span class="ss">:yaml2db</span>
+</pre></div>
+
+<p>But imported translations should have translator. You can edit translator email from translation_center.yml The rake task yaml2db will create this user if not exists</p>
+
+<div class="highlight"><pre><span class="n">yaml_translator_email</span><span class="p">:</span> <span class="s1">'coder@tc.com'</span>
+</pre></div>
+
+<p>The imported translations status will be ACCEPTED by default. If you want to disable that, comment the following line in translation_center.yaml</p>
+
+<div class="highlight"><pre><span class="n">yaml2db_translations_accepted</span><span class="p">:</span> <span class="kp">true</span>
+</pre></div>
+
+<p>Any I18n.translate method will display translations from database ACCEPTED translations. If you want to skip database translations and set to use yaml translations, comment the following line in translation_center.yaml</p>
+
+<div class="highlight"><pre><span class="n">i18n_source</span><span class="p">:</span> <span class="s1">'db'</span> <span class="c1"># can be db or yaml; default is yaml</span>
+</pre></div>
+
+<h1>Add new language</h1>
+
+<p>If you want to add a language to the translation center, you need to run the generator:</p>
+
+<div class="highlight"><pre><span class="n">rails</span> <span class="n">g</span> <span class="n">migration</span> <span class="n">translation_center</span><span class="ss">:add_lang</span> <span class="n">es</span> <span class="n">fr</span>
+<span class="n">rake</span> <span class="n">db</span><span class="ss">:migrate</span>
+</pre></div>
+
+<p>You will also need to add the language to config/translation_center.yml</p>
+
+<div class="highlight"><pre><span class="n">development</span><span class="p">:</span>
+  <span class="n">lang</span><span class="p">:</span>
+    <span class="n">en</span><span class="p">:</span> <span class="s1">'English'</span>
+    <span class="n">ar</span><span class="p">:</span> <span class="s1">'Arabic'</span>
+    <span class="n">de</span><span class="p">:</span> <span class="s1">'German'</span>
+    <span class="n">es</span><span class="p">:</span> <span class="s1">'Espaniol'</span>
+    <span class="n">fr</span><span class="p">:</span> <span class="s1">'French'</span>
+</pre></div>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Translation center maintained by <a href="https://github.com/kabdelhady">kabdelhady</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
